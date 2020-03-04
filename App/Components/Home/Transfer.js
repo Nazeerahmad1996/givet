@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     TextInput,
+    Alert
 } from 'react-native';
 import {
     responsiveHeight,
@@ -14,6 +15,8 @@ import {
 import { TextColor, White, LightBackground } from '../../Globals/colors';
 import { Button } from 'react-native-paper';
 // import SelModal from './SellModal';
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../AlertMessages'
 
 
 import Header from './WalletHeader';
@@ -22,8 +25,19 @@ export default class WalletHistory extends Component {
 
     state = {
         username: '',
-        amount: '',
+        amount: 0,
+        user: [
+            { id: 0.1, user: 'Mike', balance: 10 },
+        ],
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: '',
 
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
 
 
@@ -31,11 +45,19 @@ export default class WalletHistory extends Component {
     render() {
         return (
             <View>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
                 <Header navigation={this.props.navigation} HeaderName={'Transfer'} {...this.props} />
                 <View style={{ backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, marginTop: -20, paddingHorizontal: 30 }}>
-                    <Text style={{ fontSize: 21,marginTop:20 }}>When any user sending any amount to your balance will be debited</Text>
-                    
-                    
+                    <Text style={{ fontSize: 21, marginTop: 20 }}>When any user sending any amount to your balance will be debited</Text>
+
+
                     <View style={Styles.InputView1}>
                         <TextInput
                             style={Styles.inputName}
@@ -59,6 +81,7 @@ export default class WalletHistory extends Component {
                             }}
                             value={this.state.amount}
                             placeholder={'Amount'}
+                            keyboardType={'numeric'}
                         />
 
 
@@ -75,6 +98,51 @@ export default class WalletHistory extends Component {
                                 contentStyle={{ height: responsiveHeight(6) }}
                                 onPress={() => {
                                     // this.check()
+                                    if (!isEmpty(this.state.username) && this.state.amount !== 0) {
+                                        if (this.state.user[0].balance >= this.state.amount) {
+                                            // Alert.alert(
+                                            //     'TRANSFER',
+                                            //     'His transfer was successful',
+                                            //     [
+                                            //         {
+                                            //             text: 'Ok',
+                                            //             onPress: () => console.log('Cancel Pressed'),
+                                            //             style: 'cancel',
+                                            //         },
+                                            //     ]
+                                            // );
+                                            this.setState({ ModalState: 'fancy', Mtype: true, des: 'His transfer was successful', Msgtitle: 'TRANSFER' });
+
+                                        } else {
+                                            // Alert.alert(
+                                            //     'TRANSFER',
+                                            //     'insufficient balance try again later',
+                                            //     [
+                                            //         {
+                                            //             text: 'Ok',
+                                            //             onPress: () => console.log('Cancel Pressed'),
+                                            //             style: 'cancel',
+                                            //         },
+                                            //     ]
+                                            // );
+                                            this.setState({ ModalState: 'fancy', Mtype: false, des: 'insufficient balance try again later', Msgtitle: 'TRANSFER' });
+                                        }
+                                    }
+                                    else {
+                                        // Alert.alert(
+                                        //     'TRANSFER',
+                                        //     'Please fill form properly',
+                                        //     [
+                                        //         {
+                                        //             text: 'Ok',
+                                        //             onPress: () => console.log('Cancel Pressed'),
+                                        //             style: 'cancel',
+                                        //         },
+                                        //     ]
+                                        // );
+                                        this.setState({ ModalState: 'fancy', Mtype: false, des: 'Please fill form properly', Msgtitle: 'TRANSFER' });
+                                    }
+
                                 }}
                                 labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
                                 <Text style={Styles.buttonTxt}>Transfer</Text>

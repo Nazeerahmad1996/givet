@@ -17,10 +17,21 @@ import {
 import { TextColor, LightBackground } from '../../Globals/colors';
 import { Button } from 'react-native-paper';
 import Modal from 'react-native-modal';
+import Messages from '../AlertMessages'
+
 export default class ForgotPasswordModal extends Component {
   state = {
     username: '',
+    ModalState: false,
+    des: '',
+    Mtype: false,
+    Msgtitle: ''
   };
+
+  closeModal = () => {
+    this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
+  };
+
   renderModalContent = () => (
     <View style={Styles.modalView}>
       <TouchableOpacity
@@ -44,7 +55,16 @@ export default class ForgotPasswordModal extends Component {
           placeholder={'Mail'}
         />
       </View>
-      <View style={Styles.ButtonView}>
+      <TouchableOpacity
+        onPress={() => {
+          if (this.state.username !== '') {
+            this.setState({ ModalState: 'fancy', Mtype: true, des: 'Email has been send, Please check your email for further process.', Msgtitle: 'Forgot Password' });
+            this.props.onClose();
+          } else {
+            this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'Forgot Password' });
+          }
+        }}
+        style={Styles.ButtonView}>
         <LinearGradient
           colors={['#ECAA0D', '#E61EB6']}
           style={Styles.LinearGradientButton}>
@@ -55,13 +75,21 @@ export default class ForgotPasswordModal extends Component {
             Resend
           </Button>
         </LinearGradient>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 
   render() {
     return (
       <SafeAreaView style={Styles.container}>
+        <Messages
+          ModalState={this.state.ModalState}
+          remove={this.remove}
+          closeModal={this.closeModal}
+          des={this.state.des}
+          Mtype={this.state.Mtype}
+          title={this.state.Msgtitle}
+        />
         <Modal
           isVisible={this.props.visible === 'fancy'}
           backdropColor="rgba(0,0,0,0.6)"

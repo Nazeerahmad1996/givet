@@ -10,6 +10,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
+    Alert,
 } from 'react-native';
 import {
     responsiveWidth,
@@ -19,8 +20,10 @@ import {
 const { width } = Dimensions.get('window');
 import { TextColor, White, LightBackground } from '../../../Globals/colors';
 import { Button, Checkbox } from 'react-native-paper';
-// import psm from '../../../Globals/PersistentStorageManager';
+import psm from '../../../Globals/PersistentStorageManager';
 import { buyTicket, getAllPacks } from "../../../Services/services";
+import Messages from '../../AlertMessages'
+
 
 export default class Login extends Component {
     state = {
@@ -48,9 +51,14 @@ export default class Login extends Component {
             // {id: 0.5, Heading: 'Freed balance', subHeading: '3 BTC'},
         ],
         checked: true,
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: ''
+    };
 
-
-
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
 
     async componentDidMount() {
@@ -82,6 +90,14 @@ export default class Login extends Component {
     render() {
         return (
             <ScrollView style={Styles.TopView}>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
                 <View style={{ flexDirection: 'row' }}>
                     <View style={Styles.TopTextView}>
                         <Text style={Styles.headingText}>All packages have value in BTC</Text>
@@ -173,11 +189,42 @@ export default class Login extends Component {
                                     return pack.flag === true;
                                 })[0];
 
+                                console.log('---------------', packs);
+
                                 let user = await psm.getUser();
                                 let accessToken = await psm.getAccessToken();
 
                                 if (checked && pack) {
+                                    // Alert.alert(
+                                    //     'BUY',
+                                    //     'Your Purchase Entered The Queue Successfully',
+                                    //     [
+                                    //         {
+                                    //             text: 'Ok',
+                                    //             onPress: () => console.log('Cancel Pressed'),
+                                    //             style: 'cancel',
+                                    //         },
+                                    //     ]
+                                    // );
+                                    this.setState({ ModalState: 'fancy', Mtype: true, des: 'Your Purchase Entered The Queue Successfully', Msgtitle: 'BUY' });
+
                                     let response = await buyTicket(user.id, pack.id, true, true, accessToken);
+
+                                }
+                                else {
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'BUY' });
+
+                                    // Alert.alert(
+                                    //     'BUY',
+                                    //     'something went wrong, try again',
+                                    //     [
+                                    //         {
+                                    //             text: 'Ok',
+                                    //             onPress: () => console.log('Cancel Pressed'),
+                                    //             style: 'cancel',
+                                    //         },
+                                    //     ]
+                                    // );
                                 }
                             }}
                             labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>

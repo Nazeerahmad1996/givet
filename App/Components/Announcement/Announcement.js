@@ -17,6 +17,7 @@ import {
   Linking,
   StatusBar,
   TextInput,
+  Alert
 } from 'react-native';
 import {
   responsiveWidth,
@@ -27,27 +28,38 @@ import { TextColor, White } from '../../Globals/colors';
 import { Button } from 'react-native-paper';
 import Toast from 'react-native-simple-toast';
 import Modal from 'react-native-modal';
+import Messages from '../AlertMessages'
+
 
 export default class Login extends Component {
   state = {
     DATA: [
       {
         id: 0,
-        
+
       },
       {
         id: 1,
-       
+
       },
-     
+
     ],
     Modal: false,
     Announce: true,
     MyAds: false,
+    password: '',
+    ModalState: false,
+    des: '',
+    Mtype: false,
+    Msgtitle: '',
   };
 
   ToggleModal = () => {
     this.setState({ Modal: !Modal });
+  };
+
+  closeModal = () => {
+    this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
   };
 
   renderModalContent = () => (
@@ -74,6 +86,14 @@ export default class Login extends Component {
   render() {
     return (
       <SafeAreaView style={[Styles.container]}>
+        <Messages
+          ModalState={this.state.ModalState}
+          remove={this.remove}
+          closeModal={this.closeModal}
+          des={this.state.des}
+          Mtype={this.state.Mtype}
+          title={this.state.Msgtitle}
+        />
         <StatusBar translucent backgroundColor="transparent" />
         <Modal
           isVisible={this.state.Modal}
@@ -206,7 +226,36 @@ export default class Login extends Component {
                   style={Styles.LinearGradientSellButton}>
                   <Button
                     onPress={() => {
-                      this.props.navigation.navigate('Home');
+                      if (this.state.password === '#2374373') {
+                        // Alert.alert(
+                        //   'PUBLICATION ID',
+                        //   'The publication link, sent successfully, wait for your verification.',
+                        //   [
+                        //     {
+                        //       text: 'Ok',
+                        //       onPress: () => console.log('Cancel Pressed'),
+                        //       style: 'cancel',
+                        //     },
+                        //   ]
+                        // );
+                        this.setState({ ModalState: 'fancy', Mtype: true, des: 'The publication link, sent successfully, wait for your verification.', Msgtitle: 'PUBLICATION ID' });
+
+                        // this.props.navigation.navigate('Home');
+                      }
+                      else {
+                        // Alert.alert(
+                        //   'PUBLICATION ID',
+                        //   'The publication link is not correct, try again.',
+                        //   [
+                        //     {
+                        //       text: 'Ok',
+                        //       onPress: () => console.log('Cancel Pressed'),
+                        //       style: 'cancel',
+                        //     },
+                        //   ]
+                        // );
+                        this.setState({ ModalState: 'fancy', Mtype: false, des: 'The publication link is not correct, try again.', Msgtitle: 'PUBLICATION ID' });
+                      }
                     }}
                     style={Styles.SellButton}
                     contentStyle={{ height: responsiveHeight(6) }}
@@ -283,8 +332,8 @@ const Styles = StyleSheet.create({
     color: White,
     fontSize: responsiveFontSize(2.5),
     // fontWeight: 'bold',
-    borderBottomColor:'#fff',
-    borderBottomWidth:3
+    borderBottomColor: '#fff',
+    borderBottomWidth: 3
   },
   Date: {
     color: '#a6a6a6',
@@ -296,7 +345,7 @@ const Styles = StyleSheet.create({
     borderColor: '#fcd1d1',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    marginTop:15
+    marginTop: 15
   },
   MainView: {
     flex: 1,

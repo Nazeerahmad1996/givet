@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import SimpleLineIcon from 'react-native-vector-icons/SimpleLineIcons';
 
 import {
@@ -13,23 +13,35 @@ import {
   responsiveHeight,
   responsiveFontSize,
 } from 'react-native-responsive-dimensions';
-import {TextColor, White, LightBackground} from '../../Globals/colors';
+import { TextColor, White, LightBackground } from '../../Globals/colors';
 import psm from "../../Globals/PersistentStorageManager";
-import {getMyTeams} from "../../Services/services";
+import { getMyTeams } from "../../Services/services";
 
 export default class Login extends Component {
   state = {
     DATA: [
-      {id: 1, name: 'Alferado Zevalous', icon: 'user-follow'},
+      { id: 1, name: 'Alferado Zevalous', icon: 'user-follow' },
       {
         id: 2,
         name: 'MariLous Campus',
         icon: 'user-follow',
         ParentNestedList: true,
         NestedList: true,
-        ParentNestedListname:'Gamela Gabilo'
+        ParentNestedListname: 'Gamela Gabilo'
       },
-      {id: 3, name: 'Princess Diana', icon: 'user-follow'},
+      { id: 3, name: 'Princess Diana', icon: 'user-follow' },
+    ],
+    CopyData: [
+      { id: 1, name: 'Alferado Zevalous', icon: 'user-follow' },
+      {
+        id: 2,
+        name: 'MariLous Campus',
+        icon: 'user-follow',
+        ParentNestedList: true,
+        NestedList: true,
+        ParentNestedListname: 'Gamela Gabilo'
+      },
+      { id: 3, name: 'Princess Diana', icon: 'user-follow' },
     ],
     inputName: '',
     ParentNestedList: false,
@@ -43,16 +55,33 @@ export default class Login extends Component {
       DATA: response
     });
   }
+
+
+  searchFilterFunction = text => {
+    const newData = this.state.DATA.filter(item => {
+      const itemData = `${item.name.toUpperCase()}`;
+
+      const textData = text.toUpperCase();
+
+      return itemData.indexOf(textData) > -1;
+    });
+    if (text === '') {
+      this.setState({ DATA: this.state.CopyData })
+    } else {
+      this.setState({ DATA: newData });
+
+    }
+  };
+
+
   render() {
     return (
       <View>
         <View style={Styles.inputView}>
           <TextInput
             style={Styles.inputName}
-            onChangeText={text => {
-              this.setState({inputName: text});
-            }}
-            value={this.state.inputName}
+            onChangeText={text => this.searchFilterFunction(text)}
+            // value={this.state.inputName}
             placeholder={'Search'}
           />
         </View>
@@ -72,31 +101,31 @@ export default class Login extends Component {
                     color={TextColor}
                     size={40}
                   />
-                  <Text style={Styles.ContactNameText}> {item.fullName} </Text>
+                  <Text style={Styles.ContactNameText}> {item.name} </Text>
                 </TouchableOpacity>
                 {this.state.ParentNestedList ? (
-                <TouchableOpacity
-                onPress={() => {
-                  this.setState({
-                    ParentNestedList: !this.state.ParentNestedList,
-                  });
-                }}
-                style={[Styles.Touch,{marginLeft:responsiveWidth(5)}]}>
-                <SimpleLineIcon
-                  name={'user-follow'}
-                  color={TextColor}
-                  size={40}
-                />
-                <Text style={Styles.ContactNameText}> {item.ParentNestedListname} </Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({
+                        ParentNestedList: !this.state.ParentNestedList,
+                      });
+                    }}
+                    style={[Styles.Touch, { marginLeft: responsiveWidth(5) }]}>
+                    <SimpleLineIcon
+                      name={'user-follow'}
+                      color={TextColor}
+                      size={40}
+                    />
+                    <Text style={Styles.ContactNameText}> {item.ParentNestedListname} </Text>
+                  </TouchableOpacity>
                 ) : null}
               </View>
             ) : (
-              <TouchableOpacity style={Styles.Touch}>
-                <SimpleLineIcon name={'user-follow'} color={TextColor} size={40} />
-                <Text style={Styles.ContactNameText}> {item.fullName} </Text>
-              </TouchableOpacity>
-            ),
+                <TouchableOpacity style={Styles.Touch}>
+                  <SimpleLineIcon name={'user-follow'} color={TextColor} size={40} />
+                  <Text style={Styles.ContactNameText}> {item.name} </Text>
+                </TouchableOpacity>
+              ),
           )}
         </View>
       </View>

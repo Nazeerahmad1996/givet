@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
+    Alert
 } from 'react-native';
 import {
     responsiveWidth,
@@ -21,9 +22,11 @@ import { TextColor, White, LightBackground } from '../../Globals/colors';
 import { Button } from 'react-native-paper';
 // import SelModal from './SellModal';
 import Toast from 'react-native-simple-toast';
-
-
 import Header from './WalletHeader';
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../AlertMessages'
+
+
 export default class WalletHistory extends Component {
 
 
@@ -34,14 +37,30 @@ export default class WalletHistory extends Component {
         Amount: '',
         Client: true,
         Business: false,
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: '',
 
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
 
 
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={{ flex: 1 }}>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
                 <LinearGradient
                     colors={['#ECAA0D', '#E61EB6']}
                     start={{ x: 0, y: 1 }}
@@ -76,126 +95,168 @@ export default class WalletHistory extends Component {
 
 
                     {this.state.Client ? (
-                        <ScrollView style={{ backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, paddingHorizontal: 30,height:responsiveHeight(80),marginBottom:40 }}>
+                        <ScrollView style={{ backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, paddingHorizontal: 30, height: responsiveHeight(80), marginBottom: 40 }}>
 
                             {/* <ScrollView> */}
 
-                                <Text style={{ fontSize: 21, marginTop: 20 }}>When any user sending any amount to your balance will be debited</Text>
-                                <View style={Styles.InputView1}>
-                                    <TextInput
-                                        style={Styles.inputName}
-                                        onChangeText={text => {
-                                            this.setState({ username: text });
+                            <Text style={{ fontSize: 21, marginTop: 20 }}>When any user sending any amount to your balance will be debited</Text>
+                            <View style={Styles.InputView1}>
+                                <TextInput
+                                    style={Styles.inputName}
+                                    onChangeText={text => {
+                                        this.setState({ username: text });
+                                    }}
+                                    value={this.state.username}
+                                    placeholder={'search owner user'}
+                                />
+
+
+                            </View>
+
+                            <View style={Styles.Section2View}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={Styles.BoldText}>Ower User: </Text>
+                                    <Text style={[Styles.ThinText, { fontSize: 17 }]}>Patoloco</Text>
+                                </View>
+                            </View>
+
+
+                            <View style={Styles.flexView}>
+                                <View>
+                                    <Text style={Styles.BoldText}>Comision:</Text>
+                                    <Text style={Styles.ThinText}>Comision: client . 1GVT,  sponsor. 5GVT</Text>
+                                </View>
+                                <TouchableOpacity onPress={() => {
+                                    Clipboard.setString('Comision: client . 1GVT,  sponsor. 5GVT')
+                                    Toast.show('Copied');
+                                }}>
+                                    <Image
+                                        style={{
+                                            width: responsiveWidth(10),
+                                            height: responsiveHeight(10),
+                                            resizeMode: 'contain',
                                         }}
-                                        value={this.state.username}
-                                        placeholder={'search owner user'}
+                                        source={require('../../Assets/Images/delete2.png')}
                                     />
+                                </TouchableOpacity>
+                            </View>
 
-
+                            <View style={Styles.flexView}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={Styles.BoldText}>Address BTC :</Text>
+                                    <Text style={Styles.ThinText}>vt6s6s6s1xrw63j4tsf64dd64d66o</Text>
                                 </View>
-
-                                <View style={Styles.Section2View}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Text style={Styles.BoldText}>Ower User: </Text>
-                                        <Text style={[Styles.ThinText, { fontSize: 17 }]}>Patoloco</Text>
-                                    </View>
-                                </View>
-
-
-                                <View style={Styles.flexView}>
-                                    <View>
-                                        <Text style={Styles.BoldText}>Comision:</Text>
-                                        <Text style={Styles.ThinText}>Comision: client . 1GVT,  sponsor. 5GVT</Text>
-                                    </View>
-                                    <TouchableOpacity onPress={() => {
-                                        Clipboard.setString('Comision: client . 1GVT,  sponsor. 5GVT')
-                                        Toast.show('Copied');
-                                    }}>
-                                        <Image
-                                            style={{
-                                                width: responsiveWidth(10),
-                                                height: responsiveHeight(10),
-                                                resizeMode: 'contain',
-                                            }}
-                                            source={require('../../Assets/Images/delete2.png')}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={Styles.flexView}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={Styles.BoldText}>Address BTC :</Text>
-                                        <Text style={Styles.ThinText}>vt6s6s6s1xrw63j4tsf64dd64d66o</Text>
-                                    </View>
-                                    <TouchableOpacity onPress={() => {
-                                        Clipboard.setString('vt6s6s6s1xrw63j4tsf64dd64d66o')
-                                        Toast.show('Copied');
-                                    }}>
-                                        <Image
-                                            style={{
-                                                width: responsiveWidth(10),
-                                                height: responsiveHeight(10),
-                                                resizeMode: 'contain',
-                                            }}
-                                            source={require('../../Assets/Images/delete2.png')}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={{ marginTop: 20 }}>
-                                    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Amount: </Text>
-                                    <TextInput
-                                        style={Styles.BorderTextbox}
-                                        onChangeText={text => {
-                                            this.setState({ Amount: text });
+                                <TouchableOpacity onPress={() => {
+                                    Clipboard.setString('vt6s6s6s1xrw63j4tsf64dd64d66o')
+                                    Toast.show('Copied');
+                                }}>
+                                    <Image
+                                        style={{
+                                            width: responsiveWidth(10),
+                                            height: responsiveHeight(10),
+                                            resizeMode: 'contain',
                                         }}
-                                        value={this.state.Amount}
+                                        source={require('../../Assets/Images/delete2.png')}
                                     />
+                                </TouchableOpacity>
+                            </View>
 
-                                </View>
+                            <View style={{ marginTop: 20 }}>
+                                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Amount: </Text>
+                                <TextInput
+                                    style={Styles.BorderTextbox}
+                                    onChangeText={text => {
+                                        this.setState({ Amount: text });
+                                    }}
+                                    value={this.state.Amount}
+                                />
+
+                            </View>
 
 
-                                <View style={{ marginTop: 5 }}>
-                                    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Paste hash</Text>
-                                    <TextInput
-                                        style={Styles.BorderTextbox}
-                                        onChangeText={text => {
-                                            this.setState({ hash: text });
+                            <View style={{ marginTop: 5 }}>
+                                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Paste hash</Text>
+                                <TextInput
+                                    style={Styles.BorderTextbox}
+                                    onChangeText={text => {
+                                        this.setState({ hash: text });
+                                    }}
+                                    value={this.state.hash}
+                                />
+
+                            </View>
+
+                            <View style={{ marginTop: 5 }}>
+                                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Paste client user</Text>
+                                <TextInput
+                                    style={Styles.BorderTextbox}
+                                    onChangeText={text => {
+                                        this.setState({ client: text });
+                                    }}
+                                    value={this.state.client}
+                                />
+
+                            </View>
+
+                            <View style={Styles.ButtonView}>
+                                <LinearGradient
+                                    colors={['#ECAA0D', '#E61EB6']}
+                                    start={{ x: 0, y: 1 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={Styles.LinearGradientSellButton}>
+                                    <Button
+                                        style={Styles.LinearButton}
+                                        contentStyle={{ height: responsiveHeight(6) }}
+                                        onPress={() => {
+                                            // this.check()
+                                            if (isEmpty(this.state.Amount) || isEmpty(this.state.hash) || isEmpty(this.state.client)) {
+                                                // Alert.alert(
+                                                //     'HASH ID',
+                                                //     'Fill form properly',
+                                                //     [
+                                                //         {
+                                                //             text: 'Ok',
+                                                //             onPress: () => console.log('Cancel Pressed'),
+                                                //             style: 'cancel',
+                                                //         },
+                                                //     ]
+                                                // );
+                                                this.setState({ ModalState: 'fancy', Mtype: false, des: 'Fill form properly', Msgtitle: 'HASH ID' });
+
+                                            } else if (this.state.hash === 'vt6s6s6s1xrw63j4tsf64dd64d66o') {
+                                                // Alert.alert(
+                                                //     'HASH ID',
+                                                //     'The hash was sent successfully, please wait for your verification.',
+                                                //     [
+                                                //         {
+                                                //             text: 'Ok',
+                                                //             onPress: () => console.log('Cancel Pressed'),
+                                                //             style: 'cancel',
+                                                //         },
+                                                //     ]
+                                                // );
+                                                this.setState({ ModalState: 'fancy', Mtype: true, des: 'The hash was sent successfully, please wait for your verification.', Msgtitle: 'HASH ID' });
+                                            } else {
+                                                // Alert.alert(
+                                                //     'HASH ID',
+                                                //     'The hash is not correct, please try again. Only Tinies 1 More Attempt.',
+                                                //     [
+                                                //         {
+                                                //             text: 'Ok',
+                                                //             onPress: () => console.log('Cancel Pressed'),
+                                                //             style: 'cancel',
+                                                //         },
+                                                //     ]
+                                                // );
+                                                this.setState({ ModalState: 'fancy', Mtype: false, des: 'The hash is not correct, please try again. Only Tinies 1 More Attempt.', Msgtitle: 'HASH ID' });
+
+                                            }
                                         }}
-                                        value={this.state.hash}
-                                    />
-
-                                </View>
-
-                                <View style={{ marginTop: 5 }}>
-                                    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Paste client user</Text>
-                                    <TextInput
-                                        style={Styles.BorderTextbox}
-                                        onChangeText={text => {
-                                            this.setState({ client: text });
-                                        }}
-                                        value={this.state.client}
-                                    />
-
-                                </View>
-
-                                <View style={Styles.ButtonView}>
-                                    <LinearGradient
-                                        colors={['#ECAA0D', '#E61EB6']}
-                                        start={{ x: 0, y: 1 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={Styles.LinearGradientSellButton}>
-                                        <Button
-                                            style={Styles.LinearButton}
-                                            contentStyle={{ height: responsiveHeight(6) }}
-                                            onPress={() => {
-                                                // this.check()
-                                            }}
-                                            labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
-                                            <Text style={Styles.buttonTxt}>Pay</Text>
-                                        </Button>
-                                    </LinearGradient>
-                                </View>
+                                        labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
+                                        <Text style={Styles.buttonTxt}>Pay</Text>
+                                    </Button>
+                                </LinearGradient>
+                            </View>
                             {/* </ScrollView> */}
                         </ScrollView>
                     ) : (
@@ -245,7 +306,18 @@ export default class WalletHistory extends Component {
                                                 style={Styles.LinearButton}
                                                 contentStyle={{ height: responsiveHeight(6) }}
                                                 onPress={() => {
-                                                    // this.check()
+                                                    // Alert.alert(
+                                                    //     'HASH ID',
+                                                    //     'The hash was sent successfully, please wait for your verification.',
+                                                    //     [
+                                                    //         {
+                                                    //             text: 'Ok',
+                                                    //             onPress: () => console.log('Cancel Pressed'),
+                                                    //             style: 'cancel',
+                                                    //         },
+                                                    //     ]
+                                                    // );
+                                                    this.setState({ ModalState: 'fancy', Mtype: true, des: 'The hash was sent successfully, please wait for your verification.', Msgtitle: 'HASH ID' });
                                                 }}
                                                 labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
                                                 <Text style={Styles.buttonTxt}>approve payment</Text>

@@ -9,23 +9,7 @@ import {
 } from 'react-native';
 export async function register(fullname, username, email, phone, password, passwordSecurity, referralUsername,checked) {
     try {
-        if (!isEmpty(fullname) && !isEmpty(username) && !isEmpty(email) && !isEmpty(phone) && !isEmpty(password) && !isEmpty(passwordSecurity) && !isEmpty(referralUsername)) {
-            if (!checked) {
-                Alert.alert('Accept the terms and condition')
-                return;
-            }
-            if (!isEmail(email)) {
-                Alert.alert('Email badly formated')
-                return;
-            }
-            if (!isMobilePhone(phone)) {
-                Alert.alert('Phone number badly formated')
-                return;
-            }
-            if (!equals(password,passwordSecurity)) {
-                Alert.alert('Password did not matched')
-                return;
-            }
+            
             const user = await api
                 .service("api/users")
                 .create({
@@ -39,10 +23,6 @@ export async function register(fullname, username, email, phone, password, passw
                 });
 
             return user;
-        }
-        else {
-            Alert.alert('Please fill the remaning fields!')
-        }
 
     } catch (e) {
         throw e;

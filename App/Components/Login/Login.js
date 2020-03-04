@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {
@@ -10,24 +10,35 @@ import {
   StyleSheet,
   StatusBar,
   TextInput,
+  Alert
 } from 'react-native';
 import {
   responsiveWidth,
   responsiveHeight,
   responsiveFontSize,
 } from 'react-native-responsive-dimensions';
-import {TextColor, White, LightBackground} from '../../Globals/colors';
-import {Button} from 'react-native-paper';
+import { TextColor, White, LightBackground } from '../../Globals/colors';
+import { Button } from 'react-native-paper';
 import ForgotPassword from './ForgotPassword';
-
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../AlertMessages'
 export default class Login extends Component {
   state = {
     username: '',
     password: '',
     VisibleModal: false,
+    ModalState: false,
+    des: '',
+    Mtype: false,
+    Msgtitle: ''
+
   };
   onClose = () => {
-    this.setState({VisibleModal: true});
+    this.setState({ VisibleModal: true, });
+  };
+
+  closeModal = () => {
+    this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
   };
 
   render() {
@@ -36,8 +47,8 @@ export default class Login extends Component {
         <StatusBar translucent backgroundColor="transparent" />
         <LinearGradient
           colors={['#ECAA0D', '#E61EB6']}
-          start={{x: 0, y: 1}}
-          end={{x: 1, y: 1}}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 1 }}
           style={Styles.gradient}>
           <View style={Styles.LogoView}>
             <Image
@@ -49,7 +60,7 @@ export default class Login extends Component {
             <TextInput
               style={Styles.inputUser}
               onChangeText={text => {
-                this.setState({username: text});
+                this.setState({ username: text });
               }}
               value={this.state.username}
               placeholder={'Username'}
@@ -58,7 +69,7 @@ export default class Login extends Component {
               style={Styles.inputPassword}
               secureTextEntry={true}
               onChangeText={text => {
-                this.setState({password: text});
+                this.setState({ password: text });
               }}
               value={this.state.password}
               placeholder={'Password'}
@@ -66,7 +77,7 @@ export default class Login extends Component {
             <View style={Styles.ForgotPassView}>
               <TouchableOpacity
                 onPress={() => {
-                  this.setState({VisibleModal: 'fancy'});
+                  this.setState({ VisibleModal: 'fancy' });
                 }}>
                 <Text style={Styles.ForgotPassText}>Forgot Password?</Text>
               </TouchableOpacity>
@@ -75,20 +86,31 @@ export default class Login extends Component {
           <View style={Styles.ButtonView}>
             <Button
               style={Styles.LoginButton}
-              contentStyle={{height: responsiveHeight(7)}}
-              labelStyle={{color: TextColor}}
+              contentStyle={{ height: responsiveHeight(7) }}
+              labelStyle={{ color: TextColor }}
               onPress={() => {
                 // let {username, password} = this.state;
                 // await login(username, password);
-                this.props.navigation.navigate('Home');
+                if (isEmpty(this.state.password)) {
+                  this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'PASSWORD 1' });
+                }
+                else if (isEmpty(this.state.username)) {
+                  this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'USER' });
+                }
+                else {
+                  this.props.navigation.navigate('Home');
+                }
               }}>
               Login
             </Button>
             <Button
               style={Styles.RegisterButton}
-              contentStyle={{height: responsiveHeight(7)}}
-              labelStyle={{color: LightBackground}}
+              contentStyle={{ height: responsiveHeight(7) }}
+              labelStyle={{ color: LightBackground }}
               onPress={async () => {
+                if (this.state.password === '') {
+
+                }
                 this.props.navigation.navigate('Register');
               }}>
               Register
@@ -99,6 +121,14 @@ export default class Login extends Component {
             visible={this.state.VisibleModal}
           />
         </LinearGradient>
+        <Messages
+          ModalState={this.state.ModalState}
+          remove={this.remove}
+          closeModal={this.closeModal}
+          des={this.state.des}
+          Mtype={this.state.Mtype}
+          title={this.state.Msgtitle}
+        />
       </SafeAreaView>
     );
   }

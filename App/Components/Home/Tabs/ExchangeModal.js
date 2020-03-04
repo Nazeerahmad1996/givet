@@ -10,6 +10,7 @@ import {
     StyleSheet,
     StatusBar,
     TextInput,
+    Alert
 } from 'react-native';
 import {
     responsiveWidth,
@@ -21,12 +22,22 @@ import { Button } from 'react-native-paper';
 import Modal from 'react-native-modal';
 import ResendModal from './ResendModal';
 import psm from "../../../Globals/PersistentStorageManager";
-import {sellTicket} from "../../../Services/services";
+import { sellTicket } from "../../../Services/services";
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../../AlertMessages'
 
 export default class Pay extends Component {
     state = {
         password: '',
         resendModal: false,
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: '',
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
     closeResendModal = () => {
         this.setState({ resendModal: false })
@@ -50,9 +61,10 @@ export default class Pay extends Component {
                     <TextInput
                         style={Styles.inputName}
                         onChangeText={text => {
-                            this.setState({ password: text });
+                            this.props.password(text)
+                            // this.setState({ this.props.password: text });
                         }}
-                        value={this.state.password}
+                        value={this.props.password}
                         placeholder={'****'}
                         secureTextEntry={true}
                     />
@@ -60,11 +72,11 @@ export default class Pay extends Component {
 
                 {/* <Text style={Styles.rememberPassText}>Remember password 2</Text> */}
                 <TouchableOpacity
-          onPress={() => {
-            this.setState({resendModal: 'fancy'});
-          }}>
-          <Text style={Styles.rememberPassText}>Remember password 2</Text>
-        </TouchableOpacity>
+                    onPress={() => {
+                        this.setState({ resendModal: 'fancy' });
+                    }}>
+                    <Text style={Styles.rememberPassText}>Remember password 2</Text>
+                </TouchableOpacity>
 
                 <View style={Styles.ButtonView}>
 
@@ -76,13 +88,44 @@ export default class Pay extends Component {
                         <Button
                             style={Styles.LinearButton}
                             contentStyle={{ height: responsiveHeight(6) }}
-                            onPress={async () => {
-                                const {amount, receiveEffective} = this.props;
-                                const {password} = this.state;
-                                let user = await psm.getUser();
-                                let accessToken = await psm.getAccessToken();
-                                let response = await sellTicket(user.id, amount, receiveEffective, !receiveEffective, password, accessToken);
-                                this.props.closeExchangeModal();
+                            onPress={() => {
+                                const { passState } = this.props;
+                                if (!isEmpty(this.props.passState)) {
+                                    // Alert.alert(
+                                    //     'SELL',
+                                    //     'Your sale entered the queue successfully',
+                                    //     [
+                                    //         {
+                                    //             text: 'Ok',
+                                    //             onPress: () => console.log('Cancel Pressed'),
+                                    //             style: 'cancel',
+                                    //         },
+                                    //     ]
+                                    // );
+                                    this.setState({ ModalState: 'fancy', Mtype: true, des: 'Your sale entered the queue successfully', Msgtitle: 'SELL' });
+
+                                    const { amount, receiveEffective } = this.props;
+                                    let user = psm.getUser();
+                                    let accessToken = psm.getAccessToken();
+                                    let response = sellTicket(user.id, amount, receiveEffective, !receiveEffective, passState, accessToken);
+                                    this.props.closeExchangeModal();
+                                } else {
+                                    this.props.closeExchangeModal();
+                                    // Alert.alert(
+                                    //     'PASSWORD 2',
+                                    //     'something went wrong, try again',
+                                    //     [
+                                    //         {
+                                    //             text: 'Ok',
+                                    //             onPress: () => console.log('Cancel Pressed'),
+                                    //             style: 'cancel',
+                                    //         },
+                                    //     ]
+                                    // );
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'PASSWORD 2' });
+
+                                }
+
                             }}
                             labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
                             <Text style={Styles.buttonTxt}>Sell</Text>
@@ -91,15 +134,23 @@ export default class Pay extends Component {
                 </View>
             </View>
             <ResendModal
-        closeResendModal={this.closeResendModal}
-        resendModalState={this.state.resendModal}
-      />
+                closeResendModal={this.closeResendModal}
+                resendModalState={this.state.resendModal}
+            />
         </View>
     );
 
     render() {
         return (
             <SafeAreaView>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
                 <StatusBar translucent backgroundColor="transparent" />
                 <Modal
                     isVisible={this.props.stateExchangeModal === 'fancy'}

@@ -12,6 +12,7 @@ import {
   StyleSheet,
   FlatList,
   TextInput,
+  Alert
 } from 'react-native';
 import {
   responsiveWidth,
@@ -23,6 +24,8 @@ import { Button } from 'react-native-paper';
 import ImagePicker from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import { Textarea, Form } from "native-base";
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../../AlertMessages'
 
 
 export default class Register extends Component {
@@ -37,13 +40,14 @@ export default class Register extends Component {
       { id: 4, category: 'doctor', Cat: 'Professions' },
       { id: 5, category: 'architect', Cat: 'Professions' },
       { id: 6, category: 'accountant', Cat: 'Professions' },
+      { id: 13, category: 'other professions', Cat: 'Professions' },
       { id: 7, category: 'Pharmacies', Cat: 'local' },
       { id: 8, category: 'Meals (Restaurant, Polleria,...', Cat: 'local' },
       { id: 9, category: 'Winery', Cat: 'local' },
       { id: 10, category: 'Hardware store', Cat: 'local' },
       { id: 11, category: 'Hairdressing', Cat: 'local' },
       { id: 12, category: 'Car wash', Cat: 'local' },
-      { id: 13, category: 'other professions', Cat: 'other' },
+      { id: 13, category: 'other business', Cat: 'local' },
       // {id: 0.5, Heading: 'Freed balance', subHeading: '3 BTC'},
     ],
     CopyData: [
@@ -56,13 +60,14 @@ export default class Register extends Component {
       { id: 4, category: 'doctor', Cat: 'Professions' },
       { id: 5, category: 'architect', Cat: 'Professions' },
       { id: 6, category: 'accountant', Cat: 'Professions' },
+      { id: 13, category: 'other business', Cat: 'Professions' },
       { id: 7, category: 'Pharmacies', Cat: 'local' },
       { id: 8, category: 'Meals (Restaurant, Polleria,...', Cat: 'local' },
       { id: 9, category: 'Winery', Cat: 'local' },
       { id: 10, category: 'Hardware store', Cat: 'local' },
       { id: 11, category: 'Hairdressing', Cat: 'local' },
       { id: 12, category: 'Car wash', Cat: 'local' },
-      { id: 13, category: 'other professions', Cat: 'other' },
+      { id: 13, category: 'other professions', Cat: 'local' },
       // {id: 0.5, Heading: 'Freed balance', subHeading: '3 BTC'},
     ],
     name: '',
@@ -77,6 +82,17 @@ export default class Register extends Component {
     local: true,
     professional: false,
     Description: '',
+    GVTUser: 0,
+    GVTSponser: 0,
+    amountOfConsumption: 0,
+    ModalState: false,
+    des: '',
+    Mtype: false,
+    Msgtitle: '',
+  };
+
+  closeModal = () => {
+    this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
   };
 
   toggleModalCategory = () => {
@@ -132,6 +148,16 @@ export default class Register extends Component {
   render() {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: LightBackground, borderTopLeftRadius: 25, borderTopRightRadius: 25 }}>
+
+        <Messages
+          ModalState={this.state.ModalState}
+          remove={this.remove}
+          closeModal={this.closeModal}
+          des={this.state.des}
+          Mtype={this.state.Mtype}
+          title={this.state.Msgtitle}
+        />
+
         <Modal
           backdropColor="rgba(0,0,0,0.1)"
           animationIn="zoomInDown"
@@ -264,7 +290,7 @@ export default class Register extends Component {
                             </View>
 
                           </View>
-                        ):null}
+                        ) : null}
 
                       </View>
                     )}
@@ -376,18 +402,31 @@ export default class Register extends Component {
             placeholder={'GVT'}
             placeholderTextColor={'gray'}
             keyboardType={'numeric'}
+            onChangeText={text => {
+              this.setState({ GVTUser: text });
+            }}
+            value={this.state.GVTUser}
           />
           <TextInput
             style={Styles.TextInput1}
             placeholder={'GVT'}
             placeholderTextColor={'gray'}
             keyboardType={'numeric'}
+            onChangeText={text => {
+              console.log(this.state.GVTSponser)
+              this.setState({ GVTSponser: text });
+            }}
+            value={this.state.GVTSponser}
           />
           <TextInput
             style={Styles.TextInput1}
             placeholder={'USD'}
             placeholderTextColor={'gray'}
             keyboardType={'numeric'}
+            onChangeText={text => {
+              this.setState({ amountOfConsumption: text });
+            }}
+            value={this.state.amountOfConsumption}
           />
         </View>
         <View style={Styles.SelectOptionView}>
@@ -403,8 +442,41 @@ export default class Register extends Component {
           style={Styles.LinearGradientSellButton}>
           <Button
             onPress={() => {
-              this.props.navigation.navigate('Home');
-            }}
+
+              // console.log(isEmpty(this.state.name) + isEmpty(this.state.category2) + isEmpty(this.state.openingHours) + isNumeric(this.state.GVTUser) + isNumeric(this.state.GVTSponser) + isEmpty(this.state.Description) + isNumeric(this.state.amountOfConsumption))
+
+              if (isEmpty(this.state.name) || isEmpty(this.state.category2) || isEmpty(this.state.openingHours) || isEmpty(this.state.Description) || this.state.GVTSponser === 0 || this.state.GVTUser === 0 || this.state.amountOfConsumption === 0) {
+                // Alert.alert(
+                //   'BUSINESS',
+                //   'You need to fill a field, please make sure everything is well done.',
+                //   [
+                //     {
+                //       text: 'Ok',
+                //       onPress: () => console.log('Cancel Pressed'),
+                //       style: 'cancel',
+                //     },
+                //   ]
+                // );
+                this.setState({ ModalState: 'fancy', Mtype: false, des: 'You need to fill a field, please make sure everything is well done.', Msgtitle: 'BUSINESS' });
+
+              } else {
+                // Alert.alert(
+                //   'BUSINESS',
+                //   'Your business verification was sent successfully, please wait for it to be verified.',
+                //   [
+                //     {
+                //       text: 'Ok',
+                //       onPress: () => console.log('Cancel Pressed'),
+                //       style: 'cancel',
+                //     },
+                //   ]
+                // );
+                this.setState({ ModalState: 'fancy', Mtype: true, des: 'Your business verification was sent successfully, please wait for it to be verified.', Msgtitle: 'BUSINESS',name:'',openingHours:'',category2:'',GVTSponser:0,GVTUser:0,amountOfConsumption:0,Description:'' });
+
+                // this.props.navigation.navigate('Home');
+              }
+            }
+            }
             style={Styles.SellButton}
             contentStyle={{ height: responsiveHeight(6) }}
             labelStyle={{ color: White, fontWeight: 'bold' }}>
@@ -483,7 +555,7 @@ const Styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: responsiveHeight(1),
     width: '90%',
-    height: responsiveHeight(6),
+    height: responsiveHeight(6.2),
     borderRadius: 8,
     borderWidth: 0.6,
     backgroundColor: LightBackground,

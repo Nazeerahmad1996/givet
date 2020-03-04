@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {
@@ -9,15 +9,21 @@ import {
     StyleSheet,
     StatusBar,
     TextInput,
+    Alert
 } from 'react-native';
 import {
     responsiveWidth,
     responsiveHeight,
     responsiveFontSize,
 } from 'react-native-responsive-dimensions';
-import {TextColor, White, LightBackground} from '../../Globals/colors';
-import {Checkbox} from 'react-native-paper';
-import {login, register} from "../../Services/services";
+import { TextColor, White, LightBackground } from '../../Globals/colors';
+import { Checkbox } from 'react-native-paper';
+import { login, register } from "../../Services/services";
+import isEmail from 'validator/lib/isEmail';
+import isMobilePhone from 'validator/lib/isMobilePhone';
+import isEmpty from 'validator/lib/isEmpty';
+import equals from 'validator/lib/equals';
+import Messages from '../AlertMessages'
 
 export default class Register extends Component {
     state = {
@@ -28,23 +34,39 @@ export default class Register extends Component {
         password: '',
         securityPassword: '',
         referralUsername: '',
-        checked: false
+        checked: false,
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: ''
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
 
     render() {
         return (
             <SafeAreaView style={Styles.container}>
-                <StatusBar translucent backgroundColor="transparent"/>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
+                <StatusBar translucent backgroundColor="transparent" />
                 <LinearGradient
                     colors={['#ECAA0D', '#E61EB6']}
-                    start={{x: 0, y: 1}}
-                    end={{x: 1, y: 1}}
+                    start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 1 }}
                     style={Styles.gradient}>
                     <View style={Styles.InputView}>
                         <TextInput
                             style={Styles.inputUser}
                             onChangeText={text => {
-                                this.setState({fullname: text});
+                                this.setState({ fullname: text });
                             }}
                             value={this.state.fullname}
                             placeholder={'Fullname'}
@@ -52,7 +74,7 @@ export default class Register extends Component {
                         <TextInput
                             style={Styles.inputUser}
                             onChangeText={text => {
-                                this.setState({username: text});
+                                this.setState({ username: text });
                             }}
                             value={this.state.username}
                             placeholder={'Username'}
@@ -60,7 +82,7 @@ export default class Register extends Component {
                         <TextInput
                             style={Styles.inputUser}
                             onChangeText={text => {
-                                this.setState({email: text});
+                                this.setState({ email: text });
                             }}
                             value={this.state.email}
                             placeholder={'Email'}
@@ -68,15 +90,16 @@ export default class Register extends Component {
                         <TextInput
                             style={Styles.inputUser}
                             onChangeText={text => {
-                                this.setState({phone: text});
+                                this.setState({ phone: text });
                             }}
                             value={this.state.phone}
                             placeholder={'Phone'}
+                            keyboardType={"numeric"}
                         />
                         <TextInput
                             style={Styles.inputPassword}
                             onChangeText={text => {
-                                this.setState({password: text});
+                                this.setState({ password: text });
                             }}
                             value={this.state.password}
                             secureTextEntry={true}
@@ -85,7 +108,7 @@ export default class Register extends Component {
                         <TextInput
                             style={Styles.inputPassword}
                             onChangeText={text => {
-                                this.setState({securityPassword: text});
+                                this.setState({ securityPassword: text });
                             }}
                             secureTextEntry={true}
                             value={this.state.securityPassword}
@@ -94,7 +117,7 @@ export default class Register extends Component {
                         <TextInput
                             style={Styles.inputUser}
                             onChangeText={text => {
-                                this.setState({referralUsername: text});
+                                this.setState({ referralUsername: text });
                             }}
                             value={this.state.referralUsername}
                             placeholder={'Referral Username (user sponsor)'}
@@ -103,7 +126,7 @@ export default class Register extends Component {
                             <Checkbox
                                 status={this.state.checked ? 'checked' : 'unchecked'}
                                 onPress={() => {
-                                    this.setState({checked: !this.state.checked});
+                                    this.setState({ checked: !this.state.checked });
                                 }}
                                 color={White}
                             />
@@ -112,18 +135,46 @@ export default class Register extends Component {
                     </View>
                     <View style={Styles.ButtonView}>
                         <TouchableOpacity style={Styles.LoginButton}
-                                          onPress={() => {
-                                              this.props.navigation.navigate('Login')
-                                          }}>
+                            onPress={() => {
+                                this.props.navigation.navigate('Login')
+                            }}>
                             <Text style={Styles.buttonTxt}>Login</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={Styles.RegisterButton} onPress={async () => {
-                            const {fullname, username, email, phone, password, securityPassword, referralUsername,checked} = this.state;
-                            let response = await register(fullname, username, email, phone, password, securityPassword, referralUsername,checked);
-                            if (response.userName && response.email) {
-                                await login(username, password);
+                            const { fullname, username, email, phone, password, securityPassword, referralUsername, checked } = this.state;
+                            if (!isEmpty(fullname) && !isEmpty(username) && !isEmpty(email) && !isEmpty(phone) && !isEmpty(password) && !isEmpty(securityPassword) && !isEmpty(referralUsername)) {
+
+                                if (!checked) {
+                                    // Alert.alert('Accept the terms and condition')
+                                    console.log('working')
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'Accept the terms and condition', Msgtitle: 'Register' });
+                                    return;
+                                }
+                                if (!isEmail(email)) {
+                                    // Alert.alert('Email badly formated')
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'Email badly formated', Msgtitle: 'Register' });
+                                    return;
+                                }
+                                if (!isMobilePhone(phone)) {
+                                    // Alert.alert('Phone number badly formated')
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'Phone number badly formated', Msgtitle: 'Register' });
+                                    return;
+                                }
+                                if (!equals(password, securityPassword)) {
+                                    // Alert.alert('Password did not matched')
+                                    this.setState({ ModalState: 'fancy', Mtype: false, des: 'Password did not matched', Msgtitle: 'Register' });
+                                    return;
+                                }
                                 this.props.navigation.navigate('Home');
+
+                                // let response = await register(fullname, username, email, phone, password, securityPassword, referralUsername, checked);
+                                // if (response.userName && response.email) {
+                                //     // await login(username, password);
+                                // }
+                            } else {
+                                this.setState({ ModalState: 'fancy', Mtype: false, des: 'Fill all the fields', Msgtitle: 'Register' });
+
                             }
                         }}>
                             <Text style={Styles.buttonTxt2}>Register</Text>

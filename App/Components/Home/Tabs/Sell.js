@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
+    Alert
 } from 'react-native';
 import {
     responsiveWidth,
@@ -21,6 +22,8 @@ import { Button } from 'react-native-paper';
 import Withdraw from './Withdrawing';
 import ExchangeModal from './ExchangeModal';
 import { Toggle } from "./Toggle"
+import isEmpty from 'validator/lib/isEmpty';
+import Messages from '../../AlertMessages'
 
 
 export default class Login extends Component {
@@ -40,6 +43,16 @@ export default class Login extends Component {
         isExchange: true,
         newsletterIsOn: false,
         trackingIsOn: true,
+        address: '',
+        password: '',
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: '',
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
     };
 
     alertsToggleHandle(state) {
@@ -50,13 +63,45 @@ export default class Login extends Component {
         this.setState({ visible: false });
     };
     closeExchangeModal = () => {
-        this.setState({ visible2: false });
+        this.setState({ visible2: false,password:'' });
     }
     check = () => {
-        if (this.state.isReceiveEffectiveChecked) {
-            this.setState({ visible2: 'fancy' });
-        } else if (!this.state.isReceiveEffectiveChecked) {
-            this.setState({ visible: true });
+        if (isEmpty(this.state.amount)) {
+            // Alert.alert(
+            //     'SELL',
+            //     'something went wrong, try again',
+            //     [
+            //         {
+            //             text: 'Ok',
+            //             onPress: () => console.log('Cancel Pressed'),
+            //             style: 'cancel',
+            //         },
+            //     ]
+            // );
+            this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'SELL' });
+
+        }
+        else if (isEmpty(this.state.address) && !this.state.isExchange) {
+            // Alert.alert(
+            //     'SELL',
+            //     'something went wrong, try again',
+            //     [
+            //         {
+            //             text: 'Ok',
+            //             onPress: () => console.log('Cancel Pressed'),
+            //             style: 'cancel',
+            //         },
+            //     ]
+            // );
+            this.setState({ ModalState: 'fancy', Mtype: false, des: 'something went wrong, try again', Msgtitle: 'SELL' });
+
+        }
+        else {
+            if (this.state.isReceiveEffectiveChecked) {
+                this.setState({ visible2: 'fancy' });
+            } else if (!this.state.isReceiveEffectiveChecked) {
+                this.setState({ visible: true });
+            }
         }
     }
 
@@ -67,6 +112,14 @@ export default class Login extends Component {
 
             : (
                 <View style={Styles.TopView}>
+                    <Messages
+                        ModalState={this.state.ModalState}
+                        remove={this.remove}
+                        closeModal={this.closeModal}
+                        des={this.state.des}
+                        Mtype={this.state.Mtype}
+                        title={this.state.Msgtitle}
+                    />
                     <TouchableOpacity
                         onPress={() => {
                             this.props.closeSellModal();
@@ -74,7 +127,7 @@ export default class Login extends Component {
                         style={Styles.closeView}>
                         <Entypo name={'circle-with-cross'} color={TextColor} size={25} />
                     </TouchableOpacity>
-                    <ScrollView style={{ height: responsiveHeight(60) }}>
+                    <ScrollView style={{ height: responsiveHeight(70) }}>
                         {/* <View style={Styles.MapView}>
                             {this.state.data1.map((item, index) => (
                                 <View style={Styles.innerMapView}>
@@ -113,9 +166,9 @@ export default class Login extends Component {
                                     <TextInput
                                         style={Styles.inputName2}
                                         onChangeText={text => {
-                                            this.setState({ amount: text });
+                                            this.setState({ address: text });
                                         }}
-                                        value={this.state.amount}
+                                        value={this.state.address}
                                         placeholder={'1d6683f266fs7dg8dg83d8ggg3'}
                                     />
                                 </View>
@@ -156,7 +209,7 @@ export default class Login extends Component {
 
                         </View> */}
 
-                        <View style={{marginTop:30}} />
+                        <View style={{ marginTop: 30 }} />
 
                         <Toggle
                             isOn={this.state.isExchange}
@@ -183,20 +236,25 @@ export default class Login extends Component {
                     </ScrollView>
                     <ExchangeModal
                         amount={this.state.amount}
+                        password={this.password}
+                        passState={this.state.password}
                         receiveEffective={this.state.isReceiveEffectiveChecked}
                         stateExchangeModal={this.state.visible2}
                         closeExchangeModal={this.closeExchangeModal} />
                 </View>
             );
     }
+    password = (text) => {
+        this.setState({ password: text });
+    }
 }
 const Styles = StyleSheet.create({
     TopView: {
         marginTop: responsiveHeight(4),
-        width: '95%',
         backgroundColor: White,
         alignSelf: 'center',
         borderRadius: 8,
+        flex: 1,
     },
     TopTextView: {
         width: '90%',

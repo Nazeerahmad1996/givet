@@ -8,6 +8,7 @@ import {
     Image,
     TouchableOpacity,
     StyleSheet,
+    Alert
 } from 'react-native';
 import {
     responsiveWidth,
@@ -18,6 +19,7 @@ import { TextColor, LightBackground } from '../../Globals/colors';
 import { Button } from 'react-native-paper';
 // import SelModal from './SellModal';
 import Toast from 'react-native-simple-toast';
+import Messages from '../AlertMessages'
 
 
 import Header from './WalletHeader';
@@ -25,12 +27,35 @@ export default class WalletHistory extends Component {
 
 
 
+    state = {
+        user: [
+            { id: 0.1, user: 'Mike', balance: 10 },
+        ],
+        ModalState: false,
+        des: '',
+        Mtype: false,
+        Msgtitle: '',
+    };
+
+    closeModal = () => {
+        this.setState({ ModalState: false, des: '', Mtype: false, Msgtitle: '' });
+    };
+
+
 
     render() {
         return (
             <View>
+                <Messages
+                    ModalState={this.state.ModalState}
+                    remove={this.remove}
+                    closeModal={this.closeModal}
+                    des={this.state.des}
+                    Mtype={this.state.Mtype}
+                    title={this.state.Msgtitle}
+                />
                 <Header navigation={this.props.navigation} HeaderName={'Penality'} {...this.props} />
-                <View style={{backgroundColor:'#fff',borderTopRightRadius:25,borderTopLeftRadius:25,marginTop:-20}}>
+                <View style={{ backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, marginTop: -20 }}>
                     <View style={Styles.View1}>
                         <Text style={{ fontSize: 15 }}>Copy the following address and the amount for the payment of your penalty, after 15 to minutes That Between 72 hours wax your account unlocked.</Text>
 
@@ -75,7 +100,7 @@ export default class WalletHistory extends Component {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <Text style={{color:TextColor,fontSize:20}}>Pay with balance.</Text>
+                        <Text style={{ color: TextColor, fontSize: 20 }}>Pay with balance.</Text>
                         <View style={Styles.ButtonView}>
                             <Text style={Styles.BoldText}>0.0029BTC</Text>
                             <LinearGradient
@@ -87,7 +112,36 @@ export default class WalletHistory extends Component {
                                     style={Styles.LinearButton}
                                     contentStyle={{ height: responsiveHeight(6) }}
                                     onPress={() => {
-                                        // this.check()
+                                        if (this.state.user[0].balance > 0) {
+                                            // Alert.alert(
+                                            //     'PAID OUT',
+                                            //     'Your penalty payment was successful',
+                                            //     [
+                                            //         {
+                                            //             text: 'Ok',
+                                            //             onPress: () => console.log('Cancel Pressed'),
+                                            //             style: 'cancel',
+                                            //         },
+                                            //     ]
+                                            // );
+                                            this.setState({ ModalState: 'fancy', Mtype: true, des: 'Your penalty payment was successful', Msgtitle: 'PAID OUT' });
+
+                                        }
+                                        else {
+                                            // Alert.alert(
+                                            //     'PAID OUT',
+                                            //     'insufficient balance try again later',
+                                            //     [
+                                            //         {
+                                            //             text: 'Ok',
+                                            //             onPress: () => console.log('Cancel Pressed'),
+                                            //             style: 'cancel',
+                                            //         },
+                                            //     ]
+                                            // );
+                                            this.setState({ ModalState: 'fancy', Mtype: false, des: 'insufficient balance try again later', Msgtitle: 'PAID OUT' });
+
+                                        }
                                     }}
                                     labelStyle={{ color: LightBackground, fontWeight: 'bold' }}>
                                     <Text style={Styles.buttonTxt}>Pay</Text>
@@ -143,17 +197,17 @@ const Styles = StyleSheet.create({
     LinearGradientSellButton: {
         width: '40%',
         borderRadius: 50,
-        marginLeft:15
+        marginLeft: 15
     },
     ButtonView: {
         width: '100%',
         // height: responsiveHeight(15),
-        marginTop:15,
+        marginTop: 15,
         // justifyContent: 'center',
         // alignSelf: 'center',
         alignItems: 'center',
         marginBottom: responsiveHeight(3),
-        flexDirection:'row'
+        flexDirection: 'row'
     },
     UserView: {
         flexDirection: 'row',
